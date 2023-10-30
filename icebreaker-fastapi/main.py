@@ -29,7 +29,7 @@ class UserForm(BaseModel):
 @app.post("/icebreaker")
 async def generate_icebraker(user_form: UserForm):
     person_info, profile_pic_url, short_name = ice_break(
-        short_name=user_form.short_name, mode="local"
+        short_name=user_form.short_name
     )
 
     return {

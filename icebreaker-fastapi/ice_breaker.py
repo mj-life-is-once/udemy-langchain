@@ -30,7 +30,7 @@ FULL_NAMES = {
 }
 
 
-def ice_break(short_name: str, mode="api") -> tuple[PersonIntel, str, str]:
+def ice_break(short_name: str, mode="api") -> Tuple[PersonIntel, str, str]:
     summary_template = """
     given the LinkedIn information {information} about a person from I want you to create:
     1. a short summary of a person into at most 2 sentences
@@ -87,4 +87,4 @@ if __name__ == "__main__":
     #     save_to_file=True,
     #     name="minjoo",
     # )
-    # result = ice_break(short_name=name, mode="local")
+    # result = ice_break(short_name=name, mode="api")
