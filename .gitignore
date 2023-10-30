@@ -132,3 +132,5 @@ dmypy.json
 local/*
 
 .DS_Store
+vectorstore-in-memory/faiss_index_react/*
+vectorstore-in-memory/documents/*
