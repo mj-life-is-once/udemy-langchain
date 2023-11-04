@@ -1,10 +1,11 @@
 import os
 import sys
 from pathlib import Path
+from typing import Any, Dict, List
 
 import pinecone
 from dotenv import dotenv_values
-from langchain.chains import RetrievalQA
+from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores.pinecone import Pinecone
@@ -24,19 +25,26 @@ pinecone.init(
 )
 
 
-def run_llm(query: str) -> any:
+def run_llm(query: str, chat_history: List[Dict[str, Any]]) -> any:
     embeddings = OpenAIEmbeddings()
     docsearch = Pinecone.from_existing_index(
         index_name=INDEX_NAME, embedding=embeddings
     )
     chat = ChatOpenAI(verbose=True, temperature=0)  # get more funky answers
-    qa = RetrievalQA.from_chain_type(
+
+    # qa = RetrievalQA.from_chain_type(
+    #     llm=chat,
+    #     chain_type="stuff",
+    #     retriever=docsearch.as_retriever(),
+    #     return_source_documents=True,
+    # )
+
+    qa = ConversationalRetrievalChain.from_llm(
         llm=chat,
-        chain_type="stuff",
         retriever=docsearch.as_retriever(),
         return_source_documents=True,
     )
-    return qa({"query": query})
+    return qa({"question": query, "chat_history": chat_history})
 
 
 if __name__ == "__main__":

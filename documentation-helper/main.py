@@ -15,6 +15,9 @@ if "user_prompt_history" not in st.session_state:
 if "chat_answers_history" not in st.session_state:
     st.session_state["chat_answers_history"] = []
 
+if "chat_history" not in st.session_state:
+    st.session_state["chat_history"] = []
+
 
 def create_sources_string(source_urls: Set[str]) -> str:
     if not source_urls:
@@ -31,16 +34,19 @@ def create_sources_string(source_urls: Set[str]) -> str:
 if prompt:
     with st.spinner("Generate response"):
         print(prompt)
-        generate_response = run_llm(query=prompt)
+        generate_response = run_llm(
+            query=prompt, chat_history=st.session_state["chat_history"]
+        )
         sources = set(
             [doc.metadata["source"] for doc in generate_response["source_documents"]]
         )  # collection sources
         formatted_response = (
-            f"{generate_response['result']} \n\n {create_sources_string(sources)}"
+            f"{generate_response['answer']} \n\n {create_sources_string(sources)}"
         )
 
         st.session_state["user_prompt_history"].append(prompt)
         st.session_state["chat_answers_history"].append(formatted_response)
+        st.session_state["chat_history"].append((prompt, generate_response["answer"]))
 
 if st.session_state["chat_answers_history"]:
     for generated_response, user_query in zip(
