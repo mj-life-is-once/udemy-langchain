@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pinecone
 from dotenv import dotenv_values
-from langchain.chains import RetrievalQAWithSourcesChain
+from langchain.chains import RetrievalQA
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores.pinecone import Pinecone
@@ -30,12 +30,13 @@ def run_llm(query: str) -> any:
         index_name=INDEX_NAME, embedding=embeddings
     )
     chat = ChatOpenAI(verbose=True, temperature=0)  # get more funky answers
-    qa = RetrievalQAWithSourcesChain.from_chain_type(
+    qa = RetrievalQA.from_chain_type(
         llm=chat,
         chain_type="stuff",
         retriever=docsearch.as_retriever(),
+        return_source_documents=True,
     )
-    return qa({"question": query})
+    return qa({"query": query})
 
 
 if __name__ == "__main__":
