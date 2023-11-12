@@ -5,14 +5,15 @@ from dotenv import dotenv_values
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader, SeleniumURLLoader
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 
 # from langchain.llms.openai import OpenAI
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
 
 config = dotenv_values(".env")
 os.environ["OPENAI_API_KEY"] = config["OPENAI_API_KEY"]
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 urls = [
@@ -23,25 +24,32 @@ urls = [
     "https://www.minjoocho.com/projects/c2?category=creative",
     "https://www.minjoocho.com/projects/p1?category=pragmatic",
     "https://www.minjoocho.com/projects/p2?category=pragmatic",
+    "https://experiments.minjoocho.com/blog/musicGeneration",
+    "https://experiments.minjoocho.com/blog/scatterplots",
+    "https://experiments.minjoocho.com/blog/huggingface",
+    "https://experiments.minjoocho.com/blog/nextMqtt",
 ]
 
-cv_path = "./documents/resume_minjoo_2023.pdf"
+cv_path = "./documents/minjoo_cv.pdf"
 documents = []
+embeddings = HuggingFaceEmbeddings()
 
 
-def run_llm(query: str, chat_history: List[Dict[str, Any]]) -> Any:
+def save_vector_store():
     cv_loader = PyPDFLoader(file_path=cv_path)
     documents.extend(cv_loader.load())
     web_loader = SeleniumURLLoader(urls=urls)
     documents.extend(web_loader.load())
-    text_splitter = CharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=30, separator="\n"
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=750, chunk_overlap=30, length_function=len
     )
     docs = text_splitter.split_documents(documents=documents)
-    embeddings = OpenAIEmbeddings()
+
     vectorstore = FAISS.from_documents(docs, embeddings)
     vectorstore.save_local("faiss_index_career")
 
+
+def run_llm(query: str, chat_history: List[Dict[str, Any]]) -> Any:
     chat = ChatOpenAI(verbose=True, temperature=0)
     new_vectorstore = FAISS.load_local("faiss_index_career", embeddings)
     chat = ChatOpenAI(verbose=True, temperature=0)

@@ -48,4 +48,4 @@ def run_llm(query: str, chat_history: List[Dict[str, Any]]) -> any:
 
 
 if __name__ == "__main__":
-    print(run_llm(query="What is LangChain?"))
+    print(run_llm(query="What?"))

@@ -1,3 +1,5 @@
+from typing import Any, List
+
 from dotenv import dotenv_values
 from langchain.memory import MongoDBChatMessageHistory
 
@@ -15,6 +17,9 @@ class Store:
     def update_history(self, question, answer):
         self.message_history.add_user_message(question)
         self.message_history.add_ai_message(answer)
+
+    def get_history(self) -> List[Any]:
+        return self.message_history.messages
 
 
 if __name__ == "__main__":
