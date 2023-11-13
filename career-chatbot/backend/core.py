@@ -52,7 +52,7 @@ def save_vector_store():
 def run_llm(query: str, chat_history: List[Dict[str, Any]]) -> Any:
     chat = ChatOpenAI(verbose=True, temperature=0)
     new_vectorstore = FAISS.load_local("faiss_index_career", embeddings)
-    chat = ChatOpenAI(verbose=True, temperature=0)
+
     qa = ConversationalRetrievalChain.from_llm(
         llm=chat,
         retriever=new_vectorstore.as_retriever(),
